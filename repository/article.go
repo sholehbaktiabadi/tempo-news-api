@@ -6,20 +6,42 @@ import (
 	"gorm.io/gorm"
 )
 
-type DB struct {
-	Conn *gorm.DB
+type ArticleRepository interface {
+	GetOne(id int) (entity.Article, error)
+	Create(e entity.Article) error
+	Update(e entity.Article, id int) error
+	GetAll() ([]entity.Article, error)
+	Delete(id int) error
 }
 
-type ArticleRepository interface {
-	GetByID(id int) (entity.Article, error)
+type articleRepo struct {
+	db *gorm.DB
 }
 
 func NewArticleRepository(db *gorm.DB) ArticleRepository {
-	return &DB{Conn: db}
+	return &articleRepo{db}
 }
 
-func (db *DB) GetByID(id int) (entity.Article, error) {
-	article := entity.Article{}
-	result := db.Conn.Where("id = ?", id).First(&article)
-	return article, result.Error
+func (r *articleRepo) GetOne(id int) (entity.Article, error) {
+	var article entity.Article
+	err := r.db.First(&article, id).Error
+	return article, err
+}
+
+func (r *articleRepo) GetAll() ([]entity.Article, error) {
+	var articles []entity.Article
+	err := r.db.Order("created_at desc").Find(&articles)
+	return articles, err.Error
+}
+
+func (r *articleRepo) Create(e entity.Article) error {
+	return r.db.Create(&e).Error
+}
+
+func (r *articleRepo) Update(e entity.Article, id int) error {
+	return r.db.Where("id = ?", id).Updates(e).Error
+}
+
+func (r *articleRepo) Delete(id int) error {
+	return r.db.Delete(entity.Article{}, id).Error
 }
