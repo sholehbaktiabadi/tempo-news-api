@@ -1,0 +1,5 @@
+goose -dir migration postgres "user=postgres password=root dbname=tempo sslmode=disable" up
+
+OR 
+
+goose -dir migration postgres "user=postgres password=root dbname=tempo sslmode=disable" down
