@@ -37,7 +37,11 @@ func (r ArticleController) GetOne(c echo.Context) error {
 }
 
 func (r ArticleController) GetAll(c echo.Context) error {
-	data, err := r.articleService.GetAll()
+	params := new(dto.ArticleGetAllQueryRequest)
+	if err := c.Bind(params); err != nil {
+		return helper.ResErrHandler(c, err)
+	}
+	data, err := r.articleService.GetAll(*params)
 	if err != nil {
 		return helper.ResErrHandler(c, err)
 	}

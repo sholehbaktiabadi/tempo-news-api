@@ -23,7 +23,7 @@ type ArticleService interface {
 	GetOne(id int) (entity.Article, error)
 	Create(dto dto.ArticleCreateRequestDto) error
 	Update(dto dto.ArticleUpdateRequestDto, id int) error
-	GetAll() ([]entity.Article, error)
+	GetAll(dto dto.ArticleGetAllQueryRequest) ([]entity.Article, error)
 	Delete(id int) error
 }
 
@@ -79,8 +79,8 @@ func (s *articleService) Create(dto dto.ArticleCreateRequestDto) error {
 	return nil
 }
 
-func (s *articleService) GetAll() ([]entity.Article, error) {
-	article, err := s.articleRepo.GetAll()
+func (s *articleService) GetAll(dto dto.ArticleGetAllQueryRequest) ([]entity.Article, error) {
+	article, err := s.articleRepo.GetAll(dto)
 	if err != nil {
 		return article, err
 	}
