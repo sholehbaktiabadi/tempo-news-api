@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
@@ -15,8 +16,8 @@ type ArticleController struct {
 	articleService service.ArticleService
 }
 
-func NewArticleController(db *gorm.DB) ArticleController {
-	service := service.NewArticleService(db)
+func NewArticleController(db *gorm.DB, redisClient *redis.Client) ArticleController {
+	service := service.NewArticleService(db, redisClient)
 	controller := ArticleController{
 		articleService: service,
 	}
@@ -54,7 +55,8 @@ func (r ArticleController) Create(c echo.Context) error {
 		return helper.ResErrHandler(c, err)
 	}
 
-	if err := r.articleService.Create(payload); err != nil {
+	err := r.articleService.Create(payload)
+	if err != nil {
 		return helper.ResErrHandler(c, err)
 	}
 

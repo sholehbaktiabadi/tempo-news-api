@@ -8,8 +8,8 @@ import (
 
 type ArticleRepository interface {
 	GetOne(id int) (entity.Article, error)
-	Create(e entity.Article) error
-	Update(e entity.Article, id int) error
+	Create(e entity.Article) (entity.Article, error)
+	Update(e entity.Article, id int) (entity.Article, error)
 	GetAll() ([]entity.Article, error)
 	Delete(id int) error
 }
@@ -34,12 +34,14 @@ func (r *articleRepo) GetAll() ([]entity.Article, error) {
 	return articles, err.Error
 }
 
-func (r *articleRepo) Create(e entity.Article) error {
-	return r.db.Create(&e).Error
+func (r *articleRepo) Create(e entity.Article) (entity.Article, error) {
+	err := r.db.Create(&e).Error
+	return e, err
 }
 
-func (r *articleRepo) Update(e entity.Article, id int) error {
-	return r.db.Where("id = ?", id).Updates(e).Error
+func (r *articleRepo) Update(e entity.Article, id int) (entity.Article, error) {
+	err := r.db.Where("id = ?", id).Updates(&e).Error
+	return e, err
 }
 
 func (r *articleRepo) Delete(id int) error {
