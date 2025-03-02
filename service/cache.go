@@ -26,7 +26,7 @@ func NewCacheService(redisClient *redis.Client) CacheService {
 }
 
 func (s *cacheService) Set(key string, value any) error {
-	return s.client.Set(s.ctx, key, value, time.Hour).Err()
+	return s.client.Set(s.ctx, key, value, time.Minute).Err()
 }
 
 func (s *cacheService) Get(key string) (any, error) {

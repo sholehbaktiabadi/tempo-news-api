@@ -1,25 +1,33 @@
 package main
 
 import (
+	"fmt"
 	"tempo-news-api/config"
 	"tempo-news-api/controller"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/redis/go-redis/v9"
 )
 
 func main() {
+	env := config.Loadenv()
 	db := config.InitDB()
 	route := echo.New()
+	route.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{"GET", "POST", "PATCH", "DELETE"},
+	}))
+	redisAddr := fmt.Sprintf("%s:%s", env.Redis.Host, env.Redis.Port)
 	apiV1 := route.Group("api/v1")
-	redisClient := redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
-	})
+	articleRoute := apiV1.Group("/article")
+	fmt.Println(redisAddr)
+	redisClient := redis.NewClient(&redis.Options{Addr: redisAddr})
 	articleController := controller.NewArticleController(db, redisClient)
-	apiV1.GET("/article/:id", articleController.GetOne)
-	apiV1.POST("/article", articleController.Create)
-	apiV1.PATCH("/article/:id", articleController.Update)
-	apiV1.GET("/article", articleController.GetAll)
-	apiV1.DELETE("/article/:id", articleController.Delete)
-	route.Start(":8000")
+	articleRoute.GET("", articleController.GetAll)
+	articleRoute.POST("", articleController.Create)
+	articleRoute.GET("/:id", articleController.GetOne)
+	articleRoute.PATCH("/:id", articleController.Update)
+	articleRoute.DELETE("/:id", articleController.Delete)
+	route.Start(":" + env.App.Port)
 }

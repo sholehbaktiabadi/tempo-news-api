@@ -58,8 +58,6 @@ func (s *articleService) GetOne(id int) (entity.Article, error) {
 	if err != nil {
 		return article, err
 	}
-	articleJSON, _ := json.Marshal(article)
-	_ = s.cacheService.Set(key, string(articleJSON))
 	return article, nil
 }
 
@@ -94,7 +92,6 @@ func (s *articleService) Update(dto dto.ArticleUpdateRequestDto, id int) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(data)
 	key := fmt.Sprintf("%s-%d", variable.ArticlePrefixKey, data.Id)
 	articleJSON, _ := json.Marshal(data)
 	err = s.cacheService.Set(key, string(articleJSON))
