@@ -1,19 +1,11 @@
-FROM golang:1.24.0 AS builder
+FROM golang:1.23-bookworm
 
-WORKDIR /app
-
-COPY go.mod go.sum ./
-RUN go mod download
+WORKDIR /build
 
 COPY . .
 
-RUN go build -o main .
+RUN go mod download
 
-# Use a minimal base image for the final container
-FROM gcr.io/distroless/base-debian12
+RUN go build -o app
 
-WORKDIR /root/
-
-COPY --from=builder /app/main .
-
-CMD ["./main"]
+CMD ["/build/app"]
